@@ -27,6 +27,8 @@ carol.publishBlock()
 renderStep('<<< block creation succeed !\n')
 
 renderFullBlockchain(blockchain, 'blocks')
+
+renderStep('>>> check validity', blockchain.checkBlockchainValidity())
 console.groupEnd()
 
 
@@ -42,6 +44,8 @@ carol.pay(alice, 10)
 mallory.publishBlock()
 
 renderFullBlockchain(blockchain, 'blocks')
+
+renderStep('>>> check validity', blockchain.checkBlockchainValidity())
 console.groupEnd()
 
 
@@ -52,4 +56,18 @@ renderStep('>>> Mallory steals Bob\'s money in first block...')
 mallory.blockchain.blockList[0].transactionList[2].to = mallory.id
 mallory.blockchain.blockList[0].transactionList[2].emphase("to")
 renderFullBlockchain(blockchain, 'blocks')
+
+renderStep('>>> check validity', blockchain.checkBlockchainValidity())
+console.groupEnd()
+
+
+
+
+console.group(title("test 4"))
+renderStep('>>> Mallory updates the block\'s hash...')
+mallory.blockchain.blockList[0].hash = mallory.blockchain.blockList[0].generateHash()
+mallory.blockchain.blockList[0].emphase("hash")
+renderFullBlockchain(blockchain, 'blocks')
+
+renderStep('>>> check validity', blockchain.checkBlockchainValidity())
 console.groupEnd()
