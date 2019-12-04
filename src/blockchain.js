@@ -1,6 +1,6 @@
 const Transaction = require('./transaction')
 const Block = require('./block')
-const { renderObject } = require('./utils')
+const { renderObject, generateValidityStatus } = require('./utils')
 
 
 module.exports = class BlockChain {
@@ -60,6 +60,34 @@ module.exports = class BlockChain {
 
 		// add the new block to the chain
 		this.chain.push(block)
+	}
+
+
+	/**
+	 * Check the blockchain integrity
+	 * @returns {{valid: boolean, message: string}} - Blockchain validity state and message
+	 */
+	checkBlockchainValidity() {
+		for (let i = 0; i < this.chain.length; i++) {
+			let status = this.checkBlockValidity(this.chain[i])
+			if (!status.valid) {
+				return status
+			}
+		}
+		return generateValidityStatus()
+	}
+
+	/**
+	 * Check a given block integrity
+	 * @param {Block} currentBlock - The block to be checked
+	 * @returns {{valid: boolean, message: string}} - Blockchain validity state and message
+	 */
+	checkBlockValidity(currentBlock) {
+		if (currentBlock.hash != currentBlock.generateHash()) {
+			return generateValidityStatus(`Block [${currentBlock.id}]: the hash of the block isn't valid`)
+		}
+
+		return generateValidityStatus()
 	}
 
 

@@ -25,6 +25,21 @@ module.exports = class Transaction {
 	}
 
 
+	/**
+	 * Prepare the transaction for hashing method
+	 * @returns {string} - Transaction stringified
+	 */
+	toString() {
+		return [
+			this.id,
+			this.from,
+			this.to,
+			this.amount,
+			this.timestamp
+		].join(':')
+	}
+
+
 
 	////////
 	// Console utils

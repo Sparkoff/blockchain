@@ -1,3 +1,4 @@
+const SHA256 = require('crypto-js/sha256')
 const { renderObject, subRender, reveal } = require('./utils')
 
 
@@ -16,6 +17,8 @@ module.exports = class Block {
 
 		this.timestamp = Date.now()
 
+		this.hash = this.generateHash()
+
 
 		////////
 		// Console utils
@@ -24,13 +27,45 @@ module.exports = class Block {
 	}
 
 
+	/**
+	 * Generate the Block's hash
+	 * @returns {string} - Hash value
+	 */
+	generateHash() {
+		return SHA256(this.toString()).toString()
+	}
+
+	/**
+	 * Prepare the block for hashing method
+	 * @returns {string} - Block stringified
+	 */
+	toString() {
+		return [
+			this.minerId,
+			this.dataToString(),
+			this.timestamp
+		].join(':')
+	}
+
+	/**
+	 * Prepare the trasactions to be hashed
+	 * @returns {string} - List of transaction stringified
+	 */
+	dataToString() {
+		return this.data.map(t => t.toString())
+						.join('|')
+	}
+
+
 
 	////////
 	// Console utils
 	///
 	print() {
+		let hash = this.emphaseList.includes("hash") ? reveal(this.hash) : this.hash
 		return renderObject(`Block (miner: ${this.minerId})`, this.id, [
 			...subRender("data", this.data),
+			`hash: ${hash}`,
 			`timestamp: ${this.timestamp}`
 		])
 	}

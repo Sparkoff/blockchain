@@ -34,7 +34,18 @@ module.exports = {
 
 	title: (text) => c.magenta(`\n\n=========[ ${text} ]=========`),
 
-	renderStep: (step) => console.log(c.cyan(step)),
+	renderStep: (step, data) => {
+		if (typeof data == 'object' && data.hasOwnProperty("valid")) {
+			if (data.valid) {
+				data = `: ${c.green("[ OK ]")}`
+			} else {
+				data = `: ${c.red(`[ Error: ${data.message} ]`)}`
+			}
+		} else {
+			data = ""
+		}
+		console.log(`${c.cyan(step)}${data}`)
+	},
 
 	renderFullBlockchain: (blockchain, printBlocks) => {
 		console.group(c.blue('printing blockchain'))
@@ -47,5 +58,12 @@ module.exports = {
 		}
 	},
 
-	reveal: (text) => c.bgRed(c.black(text))
+	reveal: (text) => c.bgRed(c.black(text)),
+
+	generateValidityStatus: (message) => {
+		return {
+			message: message || "",
+			valid: message == undefined 
+		}
+	}
 }

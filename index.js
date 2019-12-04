@@ -27,6 +27,8 @@ toto.publishBlock()
 renderStep('<<< block creation succeed !\n')
 
 renderFullBlockchain(blockchain, 'blocks')
+
+renderStep('>>> check validity', blockchain.checkBlockchainValidity())
 console.groupEnd()
 
 
@@ -42,6 +44,8 @@ toto.pay(tata, 10)
 titi.publishBlock()
 
 renderFullBlockchain(blockchain, 'blocks')
+
+renderStep('>>> check validity', blockchain.checkBlockchainValidity())
 console.groupEnd()
 
 
@@ -52,4 +56,18 @@ renderStep('>>> titi steals tutu\'s money in first block...')
 titi.blockchain.chain[0].data[2].to = titi.id
 titi.blockchain.chain[0].data[2].emphase("to")
 renderFullBlockchain(blockchain, 'blocks')
+
+renderStep('>>> check validity', blockchain.checkBlockchainValidity())
+console.groupEnd()
+
+
+
+
+console.group(title("test 4"))
+renderStep('>>> titi updates the block\'s hash...')
+titi.blockchain.chain[0].hash = titi.blockchain.chain[0].generateHash()
+titi.blockchain.chain[0].emphase("hash")
+renderFullBlockchain(blockchain, 'blocks')
+
+renderStep('>>> check validity', blockchain.checkBlockchainValidity())
 console.groupEnd()
