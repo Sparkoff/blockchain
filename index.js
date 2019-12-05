@@ -53,8 +53,8 @@ console.groupEnd()
 
 console.group(title("test 3"))
 renderStep('>>> Mallory steals Bob\'s money in first block...')
-mallory.blockchain.blockList[0].transactionList[2].to = mallory.id
-mallory.blockchain.blockList[0].transactionList[2].emphase("to")
+mallory.blockchain.blockList[1].transactionList[2].to = mallory.id
+mallory.blockchain.blockList[1].transactionList[2].emphase("to")
 renderFullBlockchain(blockchain, 'blocks')
 
 renderStep('>>> check validity', blockchain.checkBlockchainValidity())
@@ -65,8 +65,27 @@ console.groupEnd()
 
 console.group(title("test 4"))
 renderStep('>>> Mallory updates the block\'s hash...')
-mallory.blockchain.blockList[0].hash = mallory.blockchain.blockList[0].generateHash()
-mallory.blockchain.blockList[0].emphase("hash")
+mallory.blockchain.blockList[1].hash = mallory.blockchain.blockList[1].generateHash()
+mallory.blockchain.blockList[1].emphase("hash")
+renderFullBlockchain(blockchain, 'blocks')
+
+renderStep('>>> check validity', blockchain.checkBlockchainValidity())
+console.groupEnd()
+
+
+
+
+console.group(title("test 5"))
+renderStep('>>> Mallory updates the blockchain hashs...')
+mallory.blockchain.blockList[2].previousHash = mallory.blockchain.blockList[1].hash
+mallory.blockchain.blockList[2].hash = mallory.blockchain.blockList[2].generateHash()
+mallory.blockchain.blockList[2].emphase("hash", "previousHash")
+renderFullBlockchain(blockchain, 'blocks')
+renderStep('>>> check validity', blockchain.checkBlockchainValidity())
+
+mallory.blockchain.blockList[3].previousHash = mallory.blockchain.blockList[2].hash
+mallory.blockchain.blockList[3].hash = mallory.blockchain.blockList[3].generateHash()
+mallory.blockchain.blockList[3].emphase("hash", "previousHash")
 renderFullBlockchain(blockchain, 'blocks')
 
 renderStep('>>> check validity', blockchain.checkBlockchainValidity())
