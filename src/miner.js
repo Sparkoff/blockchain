@@ -30,7 +30,8 @@ module.exports = class Miner {
 	/**
 	 * Create a new block in the Blockchain
 	 */
-	publishBlock() {
-		this.blockchain.publishBlock(this.id)
+	mining() {
+		let block = this.blockchain.mining(this.id)
+		this.blockchain.publishBlock(block)
 	}
 }

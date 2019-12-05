@@ -20,6 +20,10 @@ module.exports = class BlockChain {
 		this.pendingTransactions = []
 		this.transactionId = 1
 
+		// mining related properties : proof of work's complexity and miner's reward
+		this.complexity = 4
+		this.rewardValue = 1
+
 		// Initiate the block chain with the genesis block (empty)
 		this.generateGenesis()
 	}
@@ -51,15 +55,26 @@ module.exports = class BlockChain {
 	 */
 	generateGenesis() {
 		let genesis = new Block()
+		genesis.freeze()
 
 		this.chain.push(genesis)
 	}
 
 	/**
-	 * Create a new block with current pending transactions
-	 * @param {Miner.id} minerId - Miner id
+	 * Create a transaction reward
+	 * @param {integer} minerId - Miner id
+	 * @returns {Transaction} - Reward transaction associated to the miner id
 	 */
-	publishBlock(minerId) {
+	generateReward(minerId) {
+		return new Transaction(0, null, minerId, this.rewardValue)
+	}
+
+	/**
+	 * Create a new block with current pending transactions and find the proof of work
+	 * @param {Miner.id} minerId - Miner id
+	 * @returns {Block} - Generated block
+	 */
+	mining(minerId) {
 		// create a block with pending transactions, miner id and hash of the last block
 		let block = new Block(
 			this.chain.length,
@@ -68,11 +83,31 @@ module.exports = class BlockChain {
 			this.chain[this.chain.length - 1].hash
 		)
 
-		// clean the pending transaction list
-		this.pendingTransactions = []
+		// iterate on nonce value to get the proof of work
+		while (!this.checkProof(block.generateProof())) {
+			block.nonce++
+		}
 
-		// add the new block to the chain
-		this.chain.push(block)
+		return block
+	}
+
+	/**
+	 * Complete a given block creation then add it to the chain
+	 * @param {Block} block - the block to be published
+	 */
+	publishBlock(block) {
+		// check proof validity
+		if (this.checkProof(block.generateProof())) {
+			// add reward and generate hash
+			block.data.push(this.generateReward(block.minerId))
+			block.freeze()
+
+			// clean the pending transaction list
+			this.pendingTransactions = []
+
+			// add the new block to the chain
+			this.chain.push(block)
+		}
 	}
 
 
@@ -143,7 +178,31 @@ module.exports = class BlockChain {
 			return generateValidityStatus(`Block [${currentBlock.id}]: a block should have transactions`)
 		}
 
+		if (!this.checkProof(currentBlock.generateProof())) {
+			return generateValidityStatus(`Block [${currentBlock.id}]: the proof of work is invalid`)
+		}
+
+		// check transactions
+		for (const transaction of currentBlock.data) {
+			if (transaction.isReward) {
+				// the reward should belong to the miner of the block
+				if (transaction.to != currentBlock.minerId) {
+					return generateValidityStatus(`Block [${currentBlock.id}] - Transaction [${transaction.id}]: the reward doesn't belong to the block's miner`)
+				}
+			}
+		}
+
 		return generateValidityStatus()
+	}
+
+	/**
+	 * Check Proof of work
+	 * @param {string} guess - Proof of work hash
+	 * @returns {boolean} - Wether the proof is valid or not
+	 */
+	checkProof(guess) {
+		// the guess message may starts with a defined amount (complexity) of 0
+		return guess.substring(0, this.complexity) == '0'.repeat(this.complexity)
 	}
 
 

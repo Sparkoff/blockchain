@@ -23,7 +23,7 @@ tata.pay(tutu, 15)
 renderFullBlockchain(blockchain)
 
 renderStep('\n>>> create block...')
-toto.publishBlock()
+toto.mining()
 renderStep('<<< block creation succeed !\n')
 
 renderFullBlockchain(blockchain, 'blocks')
@@ -38,10 +38,10 @@ console.group(title("test 2"))
 renderStep('>>> add other transactions and create blocks...')
 tutu.pay(tata, 5)
 tata.pay(toto, 5)
-titi.publishBlock()
+titi.mining()
 tutu.pay(toto, 5)
 toto.pay(tata, 10)
-titi.publishBlock()
+titi.mining()
 
 renderFullBlockchain(blockchain, 'blocks')
 
@@ -86,6 +86,39 @@ renderStep('>>> check validity', blockchain.checkBlockchainValidity())
 titi.blockchain.chain[3].previousHash = titi.blockchain.chain[2].hash
 titi.blockchain.chain[3].hash = titi.blockchain.chain[3].generateHash()
 titi.blockchain.chain[3].emphase("hash", "previousHash")
+renderFullBlockchain(blockchain, 'blocks')
+
+renderStep('>>> check validity', blockchain.checkBlockchainValidity())
+console.groupEnd()
+
+
+
+
+console.group(title("test 6"))
+renderStep('>>> titi updates the blockchain hashs...')
+titi.blockchain.chain[1].nonce = 0
+while (!titi.blockchain.checkProof(titi.blockchain.chain[1].generateProof())) {
+	titi.blockchain.chain[1].nonce++
+}
+titi.blockchain.chain[1].hash = titi.blockchain.chain[1].generateHash()
+titi.blockchain.chain[1].emphase("nonce")
+
+titi.blockchain.chain[2].previousHash = titi.blockchain.chain[1].hash
+titi.blockchain.chain[2].nonce = 0
+while (!titi.blockchain.checkProof(titi.blockchain.chain[2].generateProof())) {
+	titi.blockchain.chain[2].nonce++
+}
+titi.blockchain.chain[2].hash = titi.blockchain.chain[2].generateHash()
+titi.blockchain.chain[2].emphase("nonce")
+
+titi.blockchain.chain[3].previousHash = titi.blockchain.chain[2].hash
+titi.blockchain.chain[3].nonce = 0
+while (!titi.blockchain.checkProof(titi.blockchain.chain[3].generateProof())) {
+	titi.blockchain.chain[3].nonce++
+}
+titi.blockchain.chain[3].hash = titi.blockchain.chain[3].generateHash()
+titi.blockchain.chain[3].emphase("nonce")
+
 renderFullBlockchain(blockchain, 'blocks')
 
 renderStep('>>> check validity', blockchain.checkBlockchainValidity())
