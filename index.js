@@ -53,8 +53,8 @@ console.groupEnd()
 
 console.group(title("test 3"))
 renderStep('>>> titi steals tutu\'s money in first block...')
-titi.blockchain.chain[0].data[2].to = titi.id
-titi.blockchain.chain[0].data[2].emphase("to")
+titi.blockchain.chain[1].data[2].to = titi.id
+titi.blockchain.chain[1].data[2].emphase("to")
 renderFullBlockchain(blockchain, 'blocks')
 
 renderStep('>>> check validity', blockchain.checkBlockchainValidity())
@@ -65,8 +65,27 @@ console.groupEnd()
 
 console.group(title("test 4"))
 renderStep('>>> titi updates the block\'s hash...')
-titi.blockchain.chain[0].hash = titi.blockchain.chain[0].generateHash()
-titi.blockchain.chain[0].emphase("hash")
+titi.blockchain.chain[1].hash = titi.blockchain.chain[1].generateHash()
+titi.blockchain.chain[1].emphase("hash")
+renderFullBlockchain(blockchain, 'blocks')
+
+renderStep('>>> check validity', blockchain.checkBlockchainValidity())
+console.groupEnd()
+
+
+
+
+console.group(title("test 5"))
+renderStep('>>> titi updates the blockchain hashs...')
+titi.blockchain.chain[2].previousHash = titi.blockchain.chain[1].hash
+titi.blockchain.chain[2].hash = titi.blockchain.chain[2].generateHash()
+titi.blockchain.chain[2].emphase("hash", "previousHash")
+renderFullBlockchain(blockchain, 'blocks')
+renderStep('>>> check validity', blockchain.checkBlockchainValidity())
+
+titi.blockchain.chain[3].previousHash = titi.blockchain.chain[2].hash
+titi.blockchain.chain[3].hash = titi.blockchain.chain[3].generateHash()
+titi.blockchain.chain[3].emphase("hash", "previousHash")
 renderFullBlockchain(blockchain, 'blocks')
 
 renderStep('>>> check validity', blockchain.checkBlockchainValidity())

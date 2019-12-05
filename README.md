@@ -96,3 +96,38 @@ The next security point may detect changed hash.
 
 
 **Next step :** `git checkout third-step`
+
+
+
+## Chain blocks with hash
+
+This security point is meant to add difficulty to hack the system: the idea is not to add a new security system, but to fully use the existing one.
+
+The idea is simple : each block has an hash, based on inner properties (such as id, transactions, timestamp...). The most easy way to make sure that 2 blocks relates on each other is to build a new block with a property from its predecessor, designed to depends only on this block : its hash.
+
+So now, let's build a block with its predecessor hash, and calculate the hash of the new block based on the previous hash.
+
+The `Bockchain.publishBlock()` now instantiate a new `Block` the ancestor hash value, and this value is used by the `Block.toString()` method to prepare the message for the `SHA` function.
+
+It is also important to notice that the blockchain verification now also needs to check the block predecessor and compare the hash of the previous block and the hash registered in the new block to be sure there is no inconcistency at this point. We can also check for block's timeline in creation, like with timestamps (this is an example).
+
+Then it is also important to introduce the notion of `Genesis block` : an empty block at start of the chain, not meant to be created with transactions, but also hashed. This hash will be use as ancestor for the first block with transactions.
+This block is check separatly because it follows different rules than a regular block (no transactions, no previous hash...).
+
+Let's run the demo :
+```bash
+node index.js
+```
+
+1. We can see that the initial state, and both previous `test1` and `test2` are still running and the validity is correct.
+
+2. The `test4` is now rejected as the recalculate hash of the first block doesn't correspond to the registered hash of the second block.
+
+3. `titi` try then to update the second block hash pointing on the first block. This should be rejected has the second block's hash would not be valid anymore. So `titi` also update the second block's hash.
+But then the third block is rejected for the same reason as the second block, so `titi` is forced to update all the child blocks...
+
+4. When all the chain is updated, the blockchain is then valid.
+It is time to apply complexity in these update hacks.
+
+
+**Next step :** `git checkout fourth-step`

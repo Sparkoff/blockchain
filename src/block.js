@@ -7,8 +7,9 @@ module.exports = class Block {
 	 * @param {integer} id - Block id
 	 * @param {Miner.id} minerId - Miner id of the creator
 	 * @param {Transaction[]} data - List of transactions
+	 * @param {string} previousHash - Hash of the previous block
 	 */
-	constructor(id, minerId, data) {
+	constructor(id, minerId, data, previousHash) {
 		this.id = id || 0
 		this.minerId = minerId
 
@@ -17,6 +18,7 @@ module.exports = class Block {
 
 		this.timestamp = Date.now()
 
+		this.previousHash = previousHash || 0
 		this.hash = this.generateHash()
 
 
@@ -43,6 +45,7 @@ module.exports = class Block {
 		return [
 			this.minerId,
 			this.dataToString(),
+			this.previousHash,
 			this.timestamp
 		].join(':')
 	}
@@ -63,8 +66,10 @@ module.exports = class Block {
 	///
 	print() {
 		let hash = this.emphaseList.includes("hash") ? reveal(this.hash) : this.hash
+		let previousHash = this.emphaseList.includes("previousHash") ? reveal(this.previousHash) : this.previousHash
 		return renderObject(`Block (miner: ${this.minerId})`, this.id, [
 			...subRender("data", this.data),
+			`previousHash: ${previousHash}`,
 			`hash: ${hash}`,
 			`timestamp: ${this.timestamp}`
 		])
