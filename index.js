@@ -23,7 +23,7 @@ alice.pay(bob, 15)
 renderFullBlockchain(blockchain)
 
 renderStep('\n>>> create block...')
-carol.publishBlock()
+carol.mining()
 renderStep('<<< block creation succeed !\n')
 
 renderFullBlockchain(blockchain, 'blocks')
@@ -38,10 +38,10 @@ console.group(title("test 2"))
 renderStep('>>> add other transactions and create blocks...')
 bob.pay(alice, 5)
 alice.pay(carol, 5)
-mallory.publishBlock()
+mallory.mining()
 bob.pay(carol, 5)
 carol.pay(alice, 10)
-mallory.publishBlock()
+mallory.mining()
 
 renderFullBlockchain(blockchain, 'blocks')
 
@@ -86,6 +86,39 @@ renderStep('>>> check validity', blockchain.checkBlockchainValidity())
 mallory.blockchain.blockList[3].previousHash = mallory.blockchain.blockList[2].hash
 mallory.blockchain.blockList[3].hash = mallory.blockchain.blockList[3].generateHash()
 mallory.blockchain.blockList[3].emphase("hash", "previousHash")
+renderFullBlockchain(blockchain, 'blocks')
+
+renderStep('>>> check validity', blockchain.checkBlockchainValidity())
+console.groupEnd()
+
+
+
+
+console.group(title("test 6"))
+renderStep('>>> Mallory updates the blockchain hashs...')
+mallory.blockchain.blockList[1].nonce = 0
+while (!mallory.blockchain.checkProof(mallory.blockchain.blockList[1].generateProof())) {
+	mallory.blockchain.blockList[1].nonce++
+}
+mallory.blockchain.blockList[1].hash = mallory.blockchain.blockList[1].generateHash()
+mallory.blockchain.blockList[1].emphase("nonce", "proofOfWork")
+
+mallory.blockchain.blockList[2].previousHash = mallory.blockchain.blockList[1].hash
+mallory.blockchain.blockList[2].nonce = 0
+while (!mallory.blockchain.checkProof(mallory.blockchain.blockList[2].generateProof())) {
+	mallory.blockchain.blockList[2].nonce++
+}
+mallory.blockchain.blockList[2].hash = mallory.blockchain.blockList[2].generateHash()
+mallory.blockchain.blockList[2].emphase("nonce", "proofOfWork")
+
+mallory.blockchain.blockList[3].previousHash = mallory.blockchain.blockList[2].hash
+mallory.blockchain.blockList[3].nonce = 0
+while (!mallory.blockchain.checkProof(mallory.blockchain.blockList[3].generateProof())) {
+	mallory.blockchain.blockList[3].nonce++
+}
+mallory.blockchain.blockList[3].hash = mallory.blockchain.blockList[3].generateHash()
+mallory.blockchain.blockList[3].emphase("nonce", "proofOfWork")
+
 renderFullBlockchain(blockchain, 'blocks')
 
 renderStep('>>> check validity', blockchain.checkBlockchainValidity())

@@ -11,6 +11,9 @@ module.exports = {
 			case "Transaction":
 				color = "red"
 				break
+			case "Reward":
+				color = "yellow"
+				break
 		}
 
 		let header = `${c[color]("+")} ${c[color](type)} [${c[color](name)}]`

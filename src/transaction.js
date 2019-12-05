@@ -11,6 +11,8 @@ module.exports = class Transaction {
 	constructor(id, from, to, amount) {
 		this.id = id
 
+		this.isReward = (from === null)
+
 		this.from = from
 		this.to = to
 		this.amount = amount
@@ -45,8 +47,9 @@ module.exports = class Transaction {
 	// Console utils
 	///
 	print() {
+		let title = this.isReward ? "Reward" : "Transaction"
 		let to = this.emphaseList.includes("to") ? reveal(this.to) : this.to
-		return renderObject("Transaction", this.id, [
+		return renderObject(title, this.id, [
 			`from: ${this.from}, to: ${to}, amount: ${this.amount}`,
 			`timestamp: ${this.timestamp}`
 		])

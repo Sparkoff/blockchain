@@ -16,10 +16,11 @@ module.exports = class Block {
 		// list of transactions
 		this.transactionList = transactionList || []
 
-		this.timestamp = Date.now()
+		this.timestamp = 0
 
+		this.nonce = 0
 		this.previousHash = previousHash || 0
-		this.hash = this.generateHash()
+		this.hash = ""
 
 
 		////////
@@ -38,16 +39,37 @@ module.exports = class Block {
 	}
 
 	/**
+	 * Generate the Block's proof of work
+	 * @returns {string} - Hash value
+	 */
+	generateProof() {
+		return SHA256(this.toString(true)).toString()
+	}
+
+	/**
+	 * Finalize the block's creation
+	 */
+	freeze() {
+		this.timestamp = Date.now()
+		this.hash = this.generateHash()
+	}
+
+	/**
 	 * Prepare the block for hashing method
+	 * @param {boolean} forProof - Generate block's string for proof hash
 	 * @returns {string} - Block stringified
 	 */
-	toString() {
-		return [
+	toString(forProof) {
+		let propertyList = [
 			this.userId,
 			this.dataToString(),
 			this.previousHash,
-			this.timestamp
-		].join(':')
+			this.nonce
+		]
+		if (!forProof) {
+			propertyList.push(this.timestamp)
+		}
+		return propertyList.join(':')
 	}
 
 	/**
@@ -56,6 +78,7 @@ module.exports = class Block {
 	 */
 	dataToString() {
 		return this.transactionList
+					.filter(t => !t.isReward)
 					.map(t => t.toString())
 					.join('|')
 	}
@@ -68,10 +91,15 @@ module.exports = class Block {
 	print() {
 		let hash = this.emphaseList.includes("hash") ? reveal(this.hash) : this.hash
 		let previousHash = this.emphaseList.includes("previousHash") ? reveal(this.previousHash) : this.previousHash
+		let nonce = this.emphaseList.includes("nonce") ? reveal(this.nonce) : this.nonce
+		let proofOfWork = this.generateProof()
+		proofOfWork = this.emphaseList.includes("proofOfWork") ? reveal(proofOfWork) : proofOfWork
 		return renderObject(`Block (user: ${this.userId})`, this.id, [
 			...subRender("transactionList", this.transactionList),
 			`previousHash: ${previousHash}`,
 			`hash: ${hash}`,
+			`nonce: ${nonce}`,
+			`proof of work: ${proofOfWork}`,
 			`timestamp: ${this.timestamp}`
 		])
 	}
