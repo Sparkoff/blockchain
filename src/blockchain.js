@@ -31,10 +31,11 @@ module.exports = class BlockChain {
 	/**
 	 * Add miner informations to the blockchain miner registry
 	 * @param {Miner.id} id - Miner id
+	 * @param {RSA_KEY} publicKey - Miner's public key
 	 * @returns {Blockchain} - Self instance
 	 */
-	register(id) {
-		this.minerRegistry[id] = { id }
+	register(id, publicKey) {
+		this.minerRegistry[id] = { id, publicKey }
 		return this
 	}
 
@@ -48,6 +49,7 @@ module.exports = class BlockChain {
 	addTransaction(from, to, amount) {
 		let transaction = new Transaction(this.transactionId++, from, to, amount)
 		this.pendingTransactions.push(transaction)
+		return transaction
 	}
 
 	/**
@@ -188,6 +190,12 @@ module.exports = class BlockChain {
 				// the reward should belong to the miner of the block
 				if (transaction.to != currentBlock.minerId) {
 					return generateValidityStatus(`Block [${currentBlock.id}] - Transaction [${transaction.id}]: the reward doesn't belong to the block's miner`)
+				}
+			} else {
+				// get public key of the emiter from the miner's registry
+				const publicKey = this.minerRegistry[transaction.from].publicKey
+				if (!transaction.checkSignature(publicKey)) {
+					return generateValidityStatus(`Block [${currentBlock.id}] - Transaction [${transaction.id}]: the transaction's signature isn't valid`)
 				}
 			}
 		}

@@ -1,3 +1,4 @@
+const SHA256 = require('crypto-js/sha256')
 const { renderObject, reveal } = require('./utils')
 
 
@@ -19,11 +20,38 @@ module.exports = class Transaction {
 
 		this.timestamp = Date.now()
 
+		this.signature = ""
+
 
 		////////
 		// Console utils
 		///
 		this.emphaseList = []
+	}
+
+	/**
+	 * Sign the transaction
+	 * @param {RSA_KEY} privateKey - emiter private key
+	 */
+	sign(privateKey) {
+		this.signature = privateKey.sign(this.generateHash()).toDER('hex')
+	}
+
+	/**
+	 * Check the transaction's signature
+	 * @param {RSA_KEY} publicKey - emiter public key
+	 * @returns {boolean} - Wether the signature is valid or not
+	 */
+	checkSignature(publicKey) {
+		return publicKey.verify(this.generateHash(), this.signature)
+	}
+
+	/**
+	 * Generate the Transaction's hash
+	 * @returns {string} - Hash value
+	 */
+	generateHash() {
+		return SHA256(this.toString()).toString()
 	}
 
 
@@ -48,9 +76,12 @@ module.exports = class Transaction {
 	///
 	print() {
 		let title = this.isReward ? "Reward" : "Transaction"
+		let from = this.emphaseList.includes("from") ? reveal(this.from) : this.from
 		let to = this.emphaseList.includes("to") ? reveal(this.to) : this.to
+		let signature = this.emphaseList.includes("signature") ? reveal(this.signature) : this.signature
 		return renderObject(title, this.id, [
-			`from: ${this.from}, to: ${to}, amount: ${this.amount}`,
+			`from: ${from}, to: ${to}, amount: ${this.amount}`,
+			`signature: ${signature}`,
 			`timestamp: ${this.timestamp}`
 		])
 	}

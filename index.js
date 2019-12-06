@@ -51,73 +51,16 @@ console.groupEnd()
 
 
 
-console.group(title("test 3"))
-renderStep('>>> titi steals tutu\'s money in first block...')
-titi.blockchain.chain[1].data[2].to = titi.id
-titi.blockchain.chain[1].data[2].emphase("to")
-renderFullBlockchain(blockchain, 'blocks')
+console.group(title("test 7"))
+renderStep('>>> titi steals tutu\'s money from first block by creating a new transaction...')
+let transaction = titi.blockchain.addTransaction(tutu.id, titi.id, 15)
+transaction.sign(titi.private)
+transaction.emphase("from", "signature")
 
-renderStep('>>> check validity', blockchain.checkBlockchainValidity())
-console.groupEnd()
-
-
-
-
-console.group(title("test 4"))
-renderStep('>>> titi updates the block\'s hash...')
-titi.blockchain.chain[1].hash = titi.blockchain.chain[1].generateHash()
-titi.blockchain.chain[1].emphase("hash")
-renderFullBlockchain(blockchain, 'blocks')
-
-renderStep('>>> check validity', blockchain.checkBlockchainValidity())
-console.groupEnd()
-
-
-
-
-console.group(title("test 5"))
-renderStep('>>> titi updates the blockchain hashs...')
-titi.blockchain.chain[2].previousHash = titi.blockchain.chain[1].hash
-titi.blockchain.chain[2].hash = titi.blockchain.chain[2].generateHash()
-titi.blockchain.chain[2].emphase("hash", "previousHash")
-renderFullBlockchain(blockchain, 'blocks')
-renderStep('>>> check validity', blockchain.checkBlockchainValidity())
-
-titi.blockchain.chain[3].previousHash = titi.blockchain.chain[2].hash
-titi.blockchain.chain[3].hash = titi.blockchain.chain[3].generateHash()
-titi.blockchain.chain[3].emphase("hash", "previousHash")
-renderFullBlockchain(blockchain, 'blocks')
-
-renderStep('>>> check validity', blockchain.checkBlockchainValidity())
-console.groupEnd()
-
-
-
-
-console.group(title("test 6"))
-renderStep('>>> titi updates the blockchain hashs...')
-titi.blockchain.chain[1].nonce = 0
-while (!titi.blockchain.checkProof(titi.blockchain.chain[1].generateProof())) {
-	titi.blockchain.chain[1].nonce++
-}
-titi.blockchain.chain[1].hash = titi.blockchain.chain[1].generateHash()
-titi.blockchain.chain[1].emphase("nonce")
-
-titi.blockchain.chain[2].previousHash = titi.blockchain.chain[1].hash
-titi.blockchain.chain[2].nonce = 0
-while (!titi.blockchain.checkProof(titi.blockchain.chain[2].generateProof())) {
-	titi.blockchain.chain[2].nonce++
-}
-titi.blockchain.chain[2].hash = titi.blockchain.chain[2].generateHash()
-titi.blockchain.chain[2].emphase("nonce")
-
-titi.blockchain.chain[3].previousHash = titi.blockchain.chain[2].hash
-titi.blockchain.chain[3].nonce = 0
-while (!titi.blockchain.checkProof(titi.blockchain.chain[3].generateProof())) {
-	titi.blockchain.chain[3].nonce++
-}
-titi.blockchain.chain[3].hash = titi.blockchain.chain[3].generateHash()
-titi.blockchain.chain[3].emphase("nonce")
+renderStep('>>> add other transactions and create a block...')
+tata.pay(toto, 5)
+tutu.pay(toto, 5)
+toto.mining()
 
 renderFullBlockchain(blockchain, 'blocks')
 
