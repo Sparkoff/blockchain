@@ -176,3 +176,44 @@ Let's modify the `Blockchain.complexity` to 5 or 6 if you're not convinced. Let'
 
 
 **Next step :** `git checkout fifth-step`
+
+
+
+## 5. Consistency on transactions
+
+The transactions are already secured by the previous work : as described in the example, `titi` try to steal money by rewriting a transaction and finally it becomes hard for him to conclude positively. All the hashing purpose is about protecting blocks content, including transactions.
+
+But we can think about another transaction's weakness : what if `titi` doesn't update an already published transaction (in block) but a pending one. Or what if he creates a falsy transaction and push it in the pending list ? How can transactions be protected by design like blocks?
+
+The solution here is almost the same as blocks : each transactions will hash its content. But the added element will be a signature : the user that emit the transaction (and pay another user) will sign (digitally) the transaction, to prove he is responsible of the transaction.
+
+One of the most used algorithm of digital signature is `RSA`. This is a good choice as it use `SHA` and is also implemented in various programming language.
+
+> The `RSA` algorithm is an asymmetric-key encryption standard:
+> * it generates 2 different keys called `public` (shared with the receiver) and `private` (kept secret by the owner)
+> * a message encrypted by a key can only be decrypted by the other
+>
+> This algorithm can be use as a cypher for message encryption/decryption in secret communication, but it can also be used for signature.
+>
+> A digital signature is a way to ensure the message is complete and come from the expected origin. Its process looks like :
+> * the message is hashed (with `RSA`, the hash method can be `SHA`)
+> * the hash is then encrypted, using the `private key` : this is the `signature`
+> * the signature and the original message are sent together
+> * the receiver hash the message and decrypt the signature using the `public key`
+> * if the decrypted signature and the hash doesn't match, the message has been altered or the emitter doesn't use the private key corresponding to the public key used (and may be fraudulent)
+
+The simple way to protect transactions from modification or identity fraud will be to sign the transaction at creation with the described protocol.
+
+Let's run the demo :
+```bash
+npm install
+node index.js
+```
+
+1. We can see that the initial state, and both previous `test1` and `test2` are still running and the validity is correct.
+
+2. `mallory` try to another way to steal the money of `Transaction 3` by creating a new transaction of the same amount from `bob` (the original receiver of the transaction) to himself : as `mallory` can't redirect the original transaction, he simply split the redirection into 2 transactions : `alice` pay `bob`, then `bob` pay `mallory`. This transaction is added to the pending queue, along with other authentic transactions, and a block is finally created.
+
+3. As `mallory` doesn't have `bob`'s private key, he signed the transaction with material he have (it's own private key).
+
+4. The fraudulent transaction is finally rejected as the signature made with `mallory`'s private key doesn't match with `bob`'s public key, registered in the blockchain.

@@ -31,10 +31,11 @@ module.exports = class BlockChain {
 	/**
 	 * Add user informations to the blockchain user registry
 	 * @param {User.id} id - User id
+	 * @param {RSA_KEY} publicKey - User's public key
 	 * @returns {Blockchain} - Self instance
 	 */
-	register(id) {
-		this.userRegistry[id] = { id }
+	register(id, publicKey) {
+		this.userRegistry[id] = { id, publicKey }
 		return this
 	}
 
@@ -48,6 +49,7 @@ module.exports = class BlockChain {
 	addTransaction(from, to, amount) {
 		let transaction = new Transaction(this.transactionId++, from, to, amount)
 		this.pendingTransactions.push(transaction)
+		return transaction
 	}
 
 	/**
@@ -188,6 +190,12 @@ module.exports = class BlockChain {
 				// the reward should belong to the user of the block
 				if (transaction.to != currentBlock.userId) {
 					return generateValidityStatus(`Block [${currentBlock.id}] - Transaction [${transaction.id}]: the reward doesn't belong to the block's user`)
+				}
+			} else {
+				// get public key of the emitter from the user's registry
+				const publicKey = this.userRegistry[transaction.from].publicKey
+				if (!transaction.checkSignature(publicKey)) {
+					return generateValidityStatus(`Block [${currentBlock.id}] - Transaction [${transaction.id}]: the transaction's signature isn't valid`)
 				}
 			}
 		}
